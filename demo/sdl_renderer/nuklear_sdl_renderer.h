@@ -17,6 +17,9 @@ NK_API void                 nk_sdl_font_stash_begin(struct nk_font_atlas **atlas
 NK_API void                 nk_sdl_font_stash_end(void);
 NK_API int                  nk_sdl_handle_event(SDL_Event *evt);
 NK_API void                 nk_sdl_render(enum nk_anti_aliasing);
+NK_API struct nk_image      nk_sdl_image(SDL_Texture* texture);
+NK_API struct nk_image      nk_sdl_load_image(struct nk_context* ctx, const char* file);
+NK_API void                 nk_sdl_image_free(struct nk_context* ctx, struct nk_image image);
 NK_API void                 nk_sdl_shutdown(void);
 
 #if SDL_COMPILEDVERSION < SDL_VERSIONNUM(2, 0, 22)
@@ -362,6 +365,51 @@ nk_sdl_handle_event(SDL_Event *evt)
             return 1;
     }
     return 0;
+}
+
+NK_API
+struct nk_image nk_sdl_load_image(struct nk_context* ctx, const char* file) {
+    SDL_Surface* surface = SDL_LoadBMP(file);
+    SDL_Texture* texture;
+    NK_UNUSED(ctx);
+    if (surface == NULL) {
+        nk_handle handle;
+        handle.ptr = NULL;
+        return nk_image_handle(handle);
+    }
+
+    texture = SDL_CreateTextureFromSurface(sdl.renderer, surface);
+    if (texture == NULL) {
+        nk_handle handle;
+        handle.ptr = NULL;
+        return nk_image_handle(handle);
+    }
+
+    SDL_FreeSurface(surface);
+    return nk_sdl_image(texture);
+}
+
+NK_API
+struct nk_image nk_sdl_image(SDL_Texture* texture)
+{
+    Uint32 format;
+    int access;
+    int width;
+    int height;
+    if (SDL_QueryTexture(texture, &format, &access, &width, &height) != 0) {
+        return nk_image_ptr(NULL);
+    };
+
+    return nk_image_type_ptr(texture, (nk_ushort)width, (nk_ushort)height, NK_IMAGE_CENTER);
+}
+
+NK_API void nk_sdl_image_free(struct nk_context* ctx, struct nk_image image)
+{
+    SDL_Texture* texture = (SDL_Texture*)image.handle.ptr;
+    NK_UNUSED(ctx);
+    if (texture != NULL) {
+        SDL_DestroyTexture(texture);
+    }
 }
 
 NK_API

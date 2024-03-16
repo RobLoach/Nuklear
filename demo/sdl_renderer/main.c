@@ -38,6 +38,9 @@
 /*#define INCLUDE_CALCULATOR */
 /*#define INCLUDE_OVERVIEW */
 /*#define INCLUDE_NODE_EDITOR */
+/*#define INCLUDE_IMAGE_VIEWER */
+
+#define INCLUDE_IMAGE_VIEWER
 
 #ifdef INCLUDE_ALL
   #define INCLUDE_STYLE
@@ -45,6 +48,7 @@
   #define INCLUDE_CANVAS
   #define INCLUDE_OVERVIEW
   #define INCLUDE_NODE_EDITOR
+  #define INCLUDE_IMAGE_VIEWER
 #endif
 
 #ifdef INCLUDE_STYLE
@@ -61,6 +65,9 @@
 #endif
 #ifdef INCLUDE_NODE_EDITOR
   #include "../../demo/common/node_editor.c"
+#endif
+#ifdef INCLUDE_IMAGE_VIEWER
+  #include "../../demo/common/image_viewer.c"
 #endif
 
 /* ===============================================================
@@ -226,6 +233,9 @@ main(int argc, char *argv[])
         #ifdef INCLUDE_NODE_EDITOR
           node_editor(ctx);
         #endif
+        #ifdef INCLUDE_IMAGE_VIEWER
+          image_viewer(ctx, nk_sdl_load_image, nk_sdl_image_free);
+        #endif
         /* ----------------------------------------- */
 
         SDL_SetRenderDrawColor(renderer, bg.r * 255, bg.g * 255, bg.b * 255, bg.a * 255);
@@ -237,6 +247,10 @@ main(int argc, char *argv[])
     }
 
 cleanup:
+    #ifdef INCLUDE_IMAGE_VIEWER
+    image_viewer_free();
+    #endif
+
     nk_sdl_shutdown();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(win);
