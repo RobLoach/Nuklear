@@ -400,7 +400,7 @@ struct nk_image nk_sdl_image(SDL_Texture* texture)
         return nk_image_ptr(NULL);
     };
 
-    return nk_image_type_ptr(texture, (nk_ushort)width, (nk_ushort)height, NK_IMAGE_CENTER);
+    return nk_image_type_ptr(texture, (nk_ushort)width, (nk_ushort)height, NK_IMAGE_FILL);
 }
 
 NK_API void nk_sdl_image_free(struct nk_context* ctx, struct nk_image image)
